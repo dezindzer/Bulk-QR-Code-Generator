@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="utf-8" />
+    <title>QR generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=4, user-scalable=yes" />
+    <meta name="referrer" content="same-origin" />
+    <meta name="X-Frame-Options" content="DENY" />
+    <meta name="description" content="Jednostavan bulk QR generator sa SVG izlazom." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>QR generator</h1>
+      <p>Unesi svaku stavku u novi red. Do 1000 kodova po generisanju.</p>
+    </header>
+
+    <main class="grid grid-2">
+      <!-- LEVA KARTICA: unos i akcije -->
+      <section class="panel">
+        <div class="panel_body">
+          <div class="fieldset inputs">
+            <textarea id="links" class="textarea" spellcheck="false" 
+            placeholder="
+            Ovde unesite listu za QR kodove;
+            jedan QR za svaki novi red; 
+            prazne linije se ignorišu..."></textarea>
+
+            <div class="actions">
+              <button class="btn" id="generate">Generiši QR kodove</button>
+              <button class="btn btn--ghost" id="print" style="display:none">Štampaj</button>
+              <button class="btn btn--ghost" id="downloadListBtn">Preuzmi listu (.txt)</button>
+              <label class="btn btn--ghost" for="upload" style="cursor:pointer">Učitaj listu (.txt)</label>
+              <input type="file" id="upload" accept="text/plain" style="display:none">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DESNA KARTICA: podešavanja -->
+      <aside class="panel">
+        <div class="panel_body">
+          <div class="fieldset">
+            <div class="fieldset__row">
+              <div class="displayNone">
+                <label class="displayNone" for="size">Veličina (px)</label>
+                <input class="displayNone" id="size" type="number" min="50" max="1000" value="150" class="input">
+              </div>
+              <div>
+                <label for="fgcolor">Boja koda</label>
+                <input id="fgcolor" type="color" value="#000000" class="color">
+              </div>
+              <div>
+                <label for="bgcolor">Boja pozadine</label>
+                <input id="bgcolor" type="color" value="#FFFFFF" class="color">
+              </div>
+            </div>
+
+            <div style="margin-top:10px">
+              <label for="printPreset">Preset za štampanje (papir / raspored)</label>
+              <select id="printPreset" class="select">
+                <option value="p-70x100-1" selected>1 QR po listu – 70×100 mm</option>
+                <option value="p-45x70-1">1 QR po listu – 45×70 mm</option>
+                <option value="p-a4p-3">A4 portret – 3 kolone (srednje)</option>
+                <option value="p-a4p-2">A4 portret – 2 kolone (veliko)</option>
+                <option value="p-a4p-4">A4 portret – 4 kolone (malo)</option>
+                <option value="p-a4l-5">A4 pejzaž – 5 kolona (malo)</option>
+                <option value="p-a4-label-100x70">A4 – mreža 100×70 mm</option>
+                <option value="p-a4-label-70x45">A4 – mreža 70×45 mm</option>
+
+                <option value="p-custom">Prilagođeno (A4; bez nametanja)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- PRIKAZ KODOVA -->
+      <section class="panel" style="grid-column:1 / -1;">
+        <div class="panel_body">
+          <div id="codes" class="codes"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="noprint">
+      <div class="panel">
+          <p>&copy; <span id="year"></span>. <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></p>
+          <p>Based on <a target="_blank" href="https://github.com/TRMSC/bulk-qr-generator">TRMSC</a>.</p>
+          <p>Updated by<a target="_blank" href="https://github.com/dezindzer/Bulk-QR-Code-Generator">dezindzer</a>.</p>
+          <p>&#10084; opensource &#10084;</p>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

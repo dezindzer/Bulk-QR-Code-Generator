@@ -1,0 +1,207 @@
+/* Core tokens */
+:root{
+  --bg:#f7f7fd; --card:#fff; --ink:#111; --muted:#626262; --ring:#dcdcef;
+  --brand:#0e7490;
+
+  /* Page / grid sizing (presets menjaju ove) */
+  --page-w:auto; --page-h:auto; --page-margin:10mm;
+  --gap:6mm; --cols:3; --cell-w:60mm; --qr:60mm;
+
+  /* Fiksna META visina */
+  --meta-h:10mm;
+}
+
+/* Base */
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font-family: ui-sans-serif, system-ui, -apple-system, Aptos, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+}
+
+/* Header */
+header{ padding:28px 20px 8px; text-align:center; }
+header h1{ margin:0 0 6px; font-size:22px; letter-spacing:.2px; }
+header p{ margin:0; color:var(--muted); font-size:16px; }
+footer {
+  align-items:center;
+  text-align:center;
+  min-width:920px;
+  max-width: 1200px;
+  padding: 16px 20px 28px;
+  margin: auto;
+}
+footer p {
+  display: block;
+  opacity: 0.6
+}
+/* Layout */
+main{ padding:12px 20px 28px; max-width:1200px; margin:0 auto; }
+.grid{ display:grid; gap:16px; }
+@media (min-width:920px){ .grid-2{ grid-template-columns: 1.3fr .7fr; } }
+
+/* Panels */
+.panel{
+  background:var(--card);
+  border:1px solid var(--ring);
+  border-radius:14px;
+  box-shadow:0 6px 24px rgba(0,0,0,.06);
+  overflow:visible;
+}
+.panel_body{ padding:16px; }
+
+.displayNone { 
+  display: none;
+}
+
+/* Form controls */
+.fieldset{ display:grid; gap:10px; }
+.fieldset__row{ display:grid; gap:10px; grid-template-columns:repeat(3, minmax(0,1fr)); }
+.fieldset label{ font-size:12px; color:var(--muted); margin-bottom:6px; display:inline-block; }
+.input,.select,.color{
+  width:100%; height:38px; padding:8px 10px; font-size:14px;
+  border:1px solid var(--ring); background:#fff; border-radius:10px;
+}
+.textarea{
+  width:100%; min-height:160px; padding:10px 12px; font-size:13px;
+  border:1px solid var(--ring); border-radius:12px; background:#fff; resize:vertical;
+}
+
+/* Actions */
+.actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+.btn{
+  appearance:none; cursor:pointer; font-weight:700; font-size:14px;
+  padding:10px 16px; border-radius:12px; color:#fff;
+  background:#0891b2; border:1px solid var(--brand);
+}
+.btn--ghost{ background:#e5f6f9; color:var(--brand); border-color:#93c5fd; }
+.btn:active{ transform:translateY(1px); }
+
+/* Codes – screen grid */
+.codes{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+  gap:16px; place-items:center;
+  justify-items:center;
+  text-align: center;
+}
+/* .code .meta{
+  font-size: var(--meta-font);
+  height: 10mm;
+  overflow: auto;
+  line-height: 1.2;
+  margin: 0;
+  padding: 0;
+  place-items:center;
+  text-align:center;
+} */
+.code .qr{
+  width:100%; 
+  aspect-ratio:1/1; 
+  display:grid; 
+  place-items:center;
+}
+.code .meta{
+    margin:0 !important;
+    padding:0 !important;
+    height:5mm !important; 
+    max-height:5mm !important;
+    overflow:visible !important;
+    font-size:5mm !important; 
+    line-height:5mm !important; 
+    color:#000 !important;
+    justify-items:center;
+    text-align: center;
+    word-break: break-all;
+  }
+
+.code .meta a{ color:#0e7490; text-decoration:none; }
+.code .meta a:hover{ text-decoration:underline; }
+
+/* Presets (A4 / labels / single-sheet) */
+body.p-a4p-3{ --page-w:210mm; --page-h:297mm; --page-margin:10mm; --cols:3; --gap:6mm; --cell-w:60mm; --qr:60mm; }
+body.p-a4p-2{ --page-w:210mm; --page-h:297mm; --page-margin:12mm; --cols:2; --gap:8mm; --cell-w:80mm; --qr:80mm; }
+body.p-a4p-4{ --page-w:210mm; --page-h:297mm; --page-margin:10mm; --cols:4; --gap:4mm; --cell-w:410mm; --qr:410mm; }
+body.p-a4l-5{ --page-w:297mm; --page-h:210mm; --page-margin:10mm; --cols:5; --gap:10mm; --cell-w:410mm; --qr:410mm; }
+body.p-a4-label-100x70{ --page-w:210mm; --page-h:297mm; --page-margin:10mm; --cols:2; --gap:10mm; --cell-w:100mm; --qr:68mm; }
+body.p-a4-label-70x45{ --page-w:210mm; --page-h:297mm; --page-margin:10mm; --cols:2; --gap:4mm; --cell-w:70mm; --qr:43mm; }
+
+/* Single QR per sheet (portrait sizes) */
+body.p-70x100-1{ --page-w:70mm; --page-h:100mm; --page-margin:10mm; --cols:1; --gap:0mm; --cell-w:60mm; --qr:60mm; }
+body.p-45x70-1{ --page-w:410mm; --page-h:70mm; --page-margin:4mm; --cols:1; --gap:0mm; --cell-w:38mm; --qr:38mm; }
+
+/* Print */
+@media print{
+  @page{ size: var(--page-w) var(--page-h); margin: var(--page-margin); }
+
+  header, aside, section.panel:first-of-type, .actions, footer{ display:none !important; }
+
+  main{ padding:0; }
+  .panel{ border:none !important; box-shadow:none !important; overflow:visible !important; }
+  .noprint { display:none !important; }
+  /* Multi-per-page (A4 & labels) */
+  .codes{
+    gap:var(--gap) !important;
+    grid-template-columns: repeat(var(--cols), var(--cell-w)) !important;
+    grid-auto-rows: calc(var(--qr) + var(--meta-h)) !important; /* QR + META 10mm */
+    justify-items:center; 
+    align-items:center;
+    text-align: center;
+  }
+.code{
+    width:var(--cell-w) !important;
+    height:100% !important;
+    display:grid !important;
+    grid-template-rows: var(--qr) 10mm !important;  /* fiksno 10mm */
+    place-items:center !important;
+    padding:0 !important;
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+    page-break-inside:avoid; break-inside:avoid-page;
+  }
+  .code .qr{
+    width:var(--qr) !important; height:var(--qr) !important; margin:0 !important; display:block !important;
+  }
+  .qr svg{
+    width:100% !important; height:100% !important; display:block !important;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; border:0 !important; outline:0 !important;
+  }
+.code .meta{
+    margin:0 !important;                 /* ukloni marginu */
+    padding:0 !important;
+    height:10mm !important; 
+    max-height:10mm !important;
+    overflow:visible !important;
+    font-size:var(--meta-h) !important; line-height:var(--meta-h) !important;
+    color:#000 !important;
+  }
+
+  /* Single-sheet (one QR per page) */
+  body.p-70x100-1 .codes, body.p-45x70-1 .codes{ display:block !important; margin:0 !important; padding:0 !important; }
+  body.p-70x100-1 .code, body.p-45x70-1 .code{
+    break-before:auto !important; page-break-before:auto !important;
+    page-break-inside:avoid; break-inside:avoid-page;
+
+    /* vertikalni “margini” kao padding top/bottom – ne diramo širinu */
+    padding-top: var(--page-margin) !important;
+    padding-bottom: var(--page-margin) !important;
+    padding-left: 0 !important; padding-right: 0 !important;
+
+    width: var(--cell-w) !important; max-width:100% !important;
+    min-height: calc(var(--qr) + var(--meta-h)) !important;
+
+    margin: 0 auto !important; display:grid !important;
+    grid-template-rows: var(--qr) 10mm !important;  /* fiksno 10mm */
+    justify-items:center !important; align-items:start !important;
+
+    background:transparent !important; border:none !important; box-shadow:none !important;
+  }
+  body.p-70x100-1 .code + .code, body.p-45x70-1 .code + .code{
+    break-before:page !important; page-break-before:always !important;
+  }
+  body.p-70x100-1 .code .qr, body.p-45x70-1 .code .qr{
+    width:var(--qr) !important; height:var(--qr) !important; margin:0 !important; display:block !important;
+  }
+}
