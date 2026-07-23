@@ -206,19 +206,64 @@ var QRCode;
 
   function _getAndroid(){ var a=false,s=navigator.userAgent; if(/android/i.test(s)){ a=true; var m=s.toString().match(/android ([0-9]\.[0-9])/i); if(m&&m[1]) a=parseFloat(m[1]); } return a; }
 
-  /* SVG renderer */
+  /* Enhanced SVG renderer */
   var svgDrawer=(function(){
     var Drawing=function(el,opt){ this._el=el; this._opt=opt; };
     Drawing.prototype.draw=function(qr){
       var opt=this._opt, el=this._el, n=qr.getModuleCount();
       this.clear();
-      function make(tag,attrs){ var e=document.createElementNS("http://www.w3.org/2000/svg",tag); for(var k in attrs) if(attrs.hasOwnProperty(k)) e.setAttribute(k,attrs[k]); return e; }
-      var svg=make("svg",{ viewBox:`0 0 ${n} ${n}`, width:"100%", height:"100%", fill:opt.colorLight });
+      function make(tag,attrs){
+        var e=document.createElementNS("http://www.w3.org/2000/svg",tag);
+        for(var k in attrs) if(attrs.hasOwnProperty(k)) e.setAttribute(k,attrs[k]);
+        return e;
+      }
+      var svg=make("svg",{ viewBox:`0 0 ${n} ${n}`, width:"100%", height:"100%" });
       svg.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink");
       el.appendChild(svg);
-      svg.appendChild(make("rect",{ fill:opt.colorLight, width:"100%", height:"100%"}));
-      svg.appendChild(make("rect",{ fill:opt.colorDark, width:"1", height:"1", id:"template"}));
-      for(var r=0;r<n;r++) for(var c=0;c<n;c++) if(qr.isDark(r,c)){ var u=make("use",{ x:String(c), y:String(r) }); u.setAttributeNS("http://www.w3.org/1999/xlink","href","#template"); svg.appendChild(u); }
+
+      var defs = make("defs", {});
+      svg.appendChild(defs);
+
+      var fillVal = opt.colorDark || "#000000";
+
+      // Background rect (solid white)
+      svg.appendChild(make("rect",{ fill: opt.colorLight || "#FFFFFF", width: "100%", height: "100%" }));
+
+      // Finder pattern detection helper (3 corners)
+      var isFinder = function(r, c) {
+        return (r < 7 && c < 7) || (r < 7 && c >= n - 7) || (r >= n - 7 && c < 7);
+      };
+
+      // Finder pattern template (always solid square for 100% scan precision)
+      var finderTpl = make("rect", { fill: fillVal, width: "1", height: "1", id: "tpl_finder" });
+      defs.appendChild(finderTpl);
+
+      // Module shape template
+      var styleTpl;
+      var style = opt.qrStyle || "square";
+
+      if (style === "rounded") {
+        styleTpl = make("rect", { fill: fillVal, x: "0.05", y: "0.05", width: "0.9", height: "0.9", rx: "0.25", ry: "0.25", id: "tpl_mod" });
+      } else if (style === "dots") {
+        styleTpl = make("circle", { fill: fillVal, cx: "0.5", cy: "0.5", r: "0.44", id: "tpl_mod" });
+      } else if (style === "diamond") {
+        styleTpl = make("polygon", { fill: fillVal, points: "0.5,0.05 0.95,0.5 0.5,0.95 0.05,0.5", id: "tpl_mod" });
+      } else {
+        styleTpl = make("rect", { fill: fillVal, width: "1", height: "1", id: "tpl_mod" });
+      }
+      defs.appendChild(styleTpl);
+
+      // Render modules
+      for(var r=0; r<n; r++) {
+        for(var c=0; c<n; c++) {
+          if(qr.isDark(r, c)) {
+            var href = isFinder(r, c) ? "#tpl_finder" : "#tpl_mod";
+            var u = make("use", { x: String(c), y: String(r) });
+            u.setAttributeNS("http://www.w3.org/1999/xlink", "href", href);
+            svg.appendChild(u);
+          }
+        }
+      }
     };
     Drawing.prototype.clear=function(){ while(this._el.firstChild) this._el.removeChild(this._el.firstChild); };
     return Drawing;
@@ -303,21 +348,167 @@ function parseLine(line){
   return [title, url, proto || "text"];
 }
 
+/* ====== SVG & PNG Download Helpers ====== */
+function loadJSZip(callback) {
+  if (window.JSZip) { callback(window.JSZip); return; }
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  script.onload = () => callback(window.JSZip);
+  script.onerror = () => {
+    alert("Greška pri učitavanju biblioteke za ZIP arhiviranje. Proverite internet konekciju.");
+  };
+  document.body.appendChild(script);
+}
+
+function sanitizeFilename(name) {
+  return (name || 'qr-code').replace(/[^a-z0-9_-]/gi, '_').substring(0, 50);
+}
+
+function getSVGData(holderId) {
+  const holder = document.getElementById(holderId);
+  if (!holder) return null;
+  const svg = holder.querySelector('svg');
+  if (!svg) return null;
+  return new XMLSerializer().serializeToString(svg);
+}
+
+function downloadSingleSVG(holderId, filename) {
+  const svgData = getSVGData(holderId);
+  if (!svgData) return;
+  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${sanitizeFilename(filename)}.svg`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function svgToCanvas(svgData, size = 1000) {
+  return new Promise((resolve, reject) => {
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(canvas);
+    };
+    img.onerror = (e) => {
+      URL.revokeObjectURL(url);
+      reject(e);
+    };
+    img.src = url;
+  });
+}
+
+function downloadSinglePNG(holderId, filename) {
+  const svgData = getSVGData(holderId);
+  if (!svgData) return;
+  svgToCanvas(svgData, 1000).then(canvas => {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `${sanitizeFilename(filename)}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }).catch(() => alert("Greška pri konverziji u PNG."));
+}
+
+function downloadAllSVG() {
+  const qrHolders = Array.from(document.querySelectorAll('.code .qr'));
+  if (!qrHolders.length) return;
+
+  loadJSZip((JSZip) => {
+    const zip = new JSZip();
+    const folder = zip.folder("qr_codes_svg");
+
+    qrHolders.forEach((holder, idx) => {
+      const meta = holder.parentElement.querySelector('.meta');
+      const text = meta ? meta.textContent.trim() : `qr_${idx+1}`;
+      const fname = `${idx+1}_${sanitizeFilename(text)}.svg`;
+      const svgData = getSVGData(holder.id);
+      if (svgData) {
+        folder.file(fname, svgData);
+      }
+    });
+
+    zip.generateAsync({ type: "blob" }).then((content) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = `bulk_qr_svg_${Date.now()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+  });
+}
+
+function downloadAllPNG() {
+  const qrHolders = Array.from(document.querySelectorAll('.code .qr'));
+  if (!qrHolders.length) return;
+
+  const btn = $('#downloadAllPng');
+  const originalText = btn ? btn.textContent : '';
+  if (btn) btn.textContent = 'Pripremam PNG ZIP...';
+
+  loadJSZip((JSZip) => {
+    const zip = new JSZip();
+    const folder = zip.folder("qr_codes_png");
+
+    const promises = qrHolders.map((holder, idx) => {
+      const meta = holder.parentElement.querySelector('.meta');
+      const text = meta ? meta.textContent.trim() : `qr_${idx+1}`;
+      const fname = `${idx+1}_${sanitizeFilename(text)}.png`;
+      const svgData = getSVGData(holder.id);
+
+      if (!svgData) return Promise.resolve();
+
+      return svgToCanvas(svgData, 1000).then(canvas => {
+        const base64Data = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, "");
+        folder.file(fname, base64Data, { base64: true });
+      });
+    });
+
+    Promise.all(promises).then(() => {
+      zip.generateAsync({ type: "blob" }).then((content) => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(content);
+        a.download = `bulk_qr_png_${Date.now()}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        if (btn) btn.textContent = originalText;
+      });
+    }).catch(() => {
+      alert("Greška pri kreiranju PNG arhive.");
+      if (btn) btn.textContent = originalText;
+    });
+  });
+}
+
 /* ====== Generate codes ====== */
 function generateCodes(){
   const parent=$("#codes");
   parent.textContent="";
 
   const fg=$("#fgcolor").value.toString();
-  const bg=$("#bgcolor").value.toString();
-  const size=parseInt($("#size").value,10)||150;
+  const qrStyle=$("#qrStyle") ? $("#qrStyle").value : "square";
+  const size=150;
 
   const lines=$("#links").value.split("\n");
   if(lines.length>1000){ alert("Nije moguće generisati više od 1000 kodova po pozivu."); return false; }
 
-  if(lines.length){
+  const hasValidLines = lines.some(l => l.trim() !== "");
+  if(hasValidLines){
     $("#generate").textContent="Ažuriraj QR kodove";
-    $("#print").style.display="inline-flex";
+    if($("#print")) $("#print").style.display="flex";
+    if($("#downloadAllPng")) $("#downloadAllPng").style.display="inline-flex";
+    if($("#downloadAllSvg")) $("#downloadAllSvg").style.display="inline-flex";
   }
 
   let counter=1;
@@ -347,8 +538,28 @@ function generateCodes(){
 
     const meta=document.createElement("div");
     meta.className="meta";
-    meta.innerHTML = (proto!=="text") ? `<<a href="${payload}" target="_blank" rel="noopener">${payload}</a>` : `${payload}`;
+    meta.innerHTML = (proto!=="text") ? `<a href="${payload}" target="_blank" rel="noopener">${payload}</a>` : `${payload}`;
     card.appendChild(meta);
+
+    // Individual download buttons
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "qr-actions";
+
+    const svgBtn = document.createElement("button");
+    svgBtn.className = "btn-sm";
+    svgBtn.textContent = "SVG";
+    svgBtn.title = "Preuzmi pojedinačni SVG";
+    svgBtn.onclick = () => downloadSingleSVG(holder.id, payload);
+
+    const pngBtn = document.createElement("button");
+    pngBtn.className = "btn-sm";
+    pngBtn.textContent = "PNG";
+    pngBtn.title = "Preuzmi pojedinačni PNG (1000px)";
+    pngBtn.onclick = () => downloadSinglePNG(holder.id, payload);
+
+    actionsDiv.appendChild(svgBtn);
+    actionsDiv.appendChild(pngBtn);
+    card.appendChild(actionsDiv);
 
     parent.appendChild(card);
 
@@ -357,7 +568,8 @@ function generateCodes(){
       width: size,
       height: size,
       colorDark: fg,
-      colorLight: bg,
+      colorLight: "#FFFFFF",
+      qrStyle: qrStyle,
       correctLevel: QRCode.CorrectLevel.H,
       useSVG: true
     });
@@ -367,79 +579,91 @@ function generateCodes(){
   return false;
 }
 
-/* ====== Print presets & META height ====== */
-function setPrintPreset(val){
-  const b=document.body;
-  b.classList.remove("p-a4p-2","p-a4p-3","p-a4p-4","p-a4l-5","p-a4-label-100x70","p-a4-label-70x45","p-70x100-1","p-45x70-1","p-custom");
-  b.classList.add(val);
+/* ====== Print settings configuration ====== */
+function updatePrintConfig() {
+  const paperWidth = parseFloat($('#paperWidth')?.value) || 210;
+  const paperHeight = parseFloat($('#paperHeight')?.value) || 297;
+  const colsCount = parseInt($('#colsCount')?.value, 10) || 3;
+  const rowsCount = parseInt($('#rowsCount')?.value, 10) || 4;
+  const paperMargin = parseFloat($('#paperMargin')?.value) ?? 10;
+  const itemGap = parseFloat($('#itemGap')?.value) ?? 4;
+
+  const rootStyle = document.documentElement.style;
+  rootStyle.setProperty('--page-w', `${paperWidth}mm`);
+  rootStyle.setProperty('--page-h', `${paperHeight}mm`);
+  rootStyle.setProperty('--page-margin', `${paperMargin}mm`);
+  rootStyle.setProperty('--cols', colsCount);
+  rootStyle.setProperty('--rows', rowsCount);
+  rootStyle.setProperty('--gap-x', `${itemGap}mm`);
+  rootStyle.setProperty('--gap-y', `${itemGap}mm`);
+
+  try {
+    localStorage.setItem('bulkqr_print_config', JSON.stringify({
+      paperWidth, paperHeight, colsCount, rowsCount, paperMargin, itemGap
+    }));
+  } catch(e) {}
 }
 
-const presetDefaultLabel = {
-  'p-a4p-3':10,'p-a4p-2':12,'p-a4p-4':8,'p-a4l-5':8,
-  'p-a4-label-100x70':10,'p-a4-label-70x45':8,'p-custom':10,
-  'p-70x100-1':10,'p-45x70-1':8
-};
-
-function setMetaHeight(mm){
-  const v = Math.max(0, Math.min(30, Number(mm)||0));
-  document.documentElement.style.setProperty('--label', v + 'mm');
-}
-function syncMetaInput(){
-  const cur = getComputedStyle(document.documentElement).getPropertyValue('--label').trim();
-  const num = parseFloat(cur);
-  const inp = document.getElementById('metaHeight');
-  if (inp && !isNaN(num)) inp.value = Math.round(num);
+function loadPrintConfig() {
+  try {
+    const saved = localStorage.getItem('bulkqr_print_config');
+    if (saved) {
+      const cfg = JSON.parse(saved);
+      if (cfg.paperWidth && $('#paperWidth')) $('#paperWidth').value = cfg.paperWidth;
+      if (cfg.paperHeight && $('#paperHeight')) $('#paperHeight').value = cfg.paperHeight;
+      if (cfg.colsCount && $('#colsCount')) $('#colsCount').value = cfg.colsCount;
+      if (cfg.rowsCount && $('#rowsCount')) $('#rowsCount').value = cfg.rowsCount;
+      if (cfg.paperMargin !== undefined && $('#paperMargin')) $('#paperMargin').value = cfg.paperMargin;
+      if (cfg.itemGap !== undefined && $('#itemGap')) $('#itemGap').value = cfg.itemGap;
+    }
+  } catch(e) {}
+  updatePrintConfig();
 }
 
 /* ====== Wire up events ====== */
 document.addEventListener('DOMContentLoaded', ()=>{
-  // default preset
-  setPrintPreset($('#printPreset')?.value || 'p-a4p-3');
-  // default label
-  setMetaHeight($('#metaHeight')?.value || 10);
-  syncMetaInput();
+  loadPrintConfig();
 
-  // Kontrola visine META (text ispod QR)
-  const metaHeightInput = document.getElementById("metaHeight");
-  if (metaHeightInput){
-    metaHeightInput.addEventListener("input", () => {
-      document.documentElement.style.setProperty("--label", metaHeightInput.value + "mm");
-    });
-  }
-
-  function applyMetaHeight(){
-    const el=document.getElementById("metaHeight");
-    if(!el) return;
-    const v=(parseFloat(el.value)||0)+"mm";
-    document.documentElement.style.setProperty("--label", v);
-    document.body.style.setProperty("--label", v);
-  }
-  document.addEventListener("DOMContentLoaded", ()=>{
-    const inp=document.getElementById("metaHeight");
-    if(inp){
-      applyMetaHeight();
-      inp.addEventListener("input", applyMetaHeight);
-      inp.addEventListener("change", applyMetaHeight);
+  const printInputs = ['paperWidth', 'paperHeight', 'colsCount', 'rowsCount', 'paperMargin', 'itemGap'];
+  printInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', updatePrintConfig);
+      el.addEventListener('change', updatePrintConfig);
     }
-    const reapply=()=>{ applyMetaHeight(); void document.body.offsetHeight; };
-    window.addEventListener("beforeprint", reapply);
-    const mq=window.matchMedia("print");
-    if(mq&&mq.addEventListener){ mq.addEventListener("change", e=>{ if(e.matches) reapply(); }); }
+  });
+
+  const styleInputs = ['fgcolor', 'qrStyle'];
+  styleInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', ()=>{
+        if ($('#codes') && $('#codes').children.length > 0) {
+          generateCodes();
+        }
+      });
+      if (el.tagName === 'INPUT' && el.type === 'color') {
+        el.addEventListener('input', ()=>{
+          if ($('#codes') && $('#codes').children.length > 0) {
+            generateCodes();
+          }
+        });
+      }
+    }
   });
 
   // actions
   $('#generate').addEventListener('click', generateCodes);
-  $('#print').addEventListener('click', ()=> window.print());
+  if($('#print')) $('#print').addEventListener('click', ()=> window.print());
+  if($('#downloadAllPng')) $('#downloadAllPng').addEventListener('click', downloadAllPNG);
+  if($('#downloadAllSvg')) $('#downloadAllSvg').addEventListener('click', downloadAllSVG);
   $('#downloadListBtn').addEventListener('click', downloadList);
+  if($('#uploadBtn')) $('#uploadBtn').addEventListener('click', () => $('#upload').click());
   $('#upload').addEventListener('change', openFile);
-  $('#printPreset').addEventListener('change', (e)=>{
-    setPrintPreset(e.target.value);
-    if (presetDefaultLabel[e.target.value]!=null) setMetaHeight(presetDefaultLabel[e.target.value]);
-    syncMetaInput();
-  });
-  $('#metaHeight').addEventListener('input', (e)=> setMetaHeight(e.target.value));
 });
 
 var time = new Date();
 var year = time.getFullYear();
-document.getElementById("year").innerHTML = year;
+if (document.getElementById("year")) {
+  document.getElementById("year").innerHTML = year;
+}

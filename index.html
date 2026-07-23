@@ -29,9 +29,10 @@
 
             <div class="actions">
               <button class="btn" id="generate">Generiši QR kodove</button>
-              <button class="btn btn--ghost" id="print" style="display:none">Štampaj</button>
+              <button class="btn btn--ghost" id="downloadAllPng" style="display:none">Preuzmi sve (PNG)</button>
+              <button class="btn btn--ghost" id="downloadAllSvg" style="display:none">Preuzmi sve (SVG)</button>
               <button class="btn btn--ghost" id="downloadListBtn">Preuzmi listu (.txt)</button>
-              <label class="btn btn--ghost" for="upload" style="cursor:pointer">Učitaj listu (.txt)</label>
+              <button class="btn btn--ghost" id="uploadBtn">Učitaj listu (.txt)</button>
               <input type="file" id="upload" accept="text/plain" style="display:none">
             </div>
           </div>
@@ -42,35 +43,64 @@
       <aside class="panel">
         <div class="panel_body">
           <div class="fieldset">
+            <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--brand);">Izgled i boja</h3>
+            
+            <div style="margin-bottom: 10px;">
+              <label for="qrStyle">Stil modula (oblik tačaka)</label>
+              <select id="qrStyle" class="select">
+                <option value="square" selected>Kvadratni (Klasični)</option>
+                <option value="rounded">Zaobljeni moduli</option>
+                <option value="dots">Kružni (Tačke)</option>
+                <option value="diamond">Dijamanti</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="fgcolor">Boja QR koda</label>
+              <input id="fgcolor" type="color" value="#000000" class="color">
+            </div>
+
+            <hr style="border:0; border-top:1px solid var(--ring); margin:14px 0 10px 0;">
+
+            <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--brand);">Podešavanja papira i štampanja</h3>
+            
             <div class="fieldset__row">
-              <div class="displayNone">
-                <label class="displayNone" for="size">Veličina (px)</label>
-                <input class="displayNone" id="size" type="number" min="50" max="1000" value="150" class="input">
+              <div>
+                <label for="paperWidth">Širina papira (mm)</label>
+                <input id="paperWidth" type="number" min="10" max="2000" value="210" class="input">
               </div>
               <div>
-                <label for="fgcolor">Boja koda</label>
-                <input id="fgcolor" type="color" value="#000000" class="color">
-              </div>
-              <div>
-                <label for="bgcolor">Boja pozadine</label>
-                <input id="bgcolor" type="color" value="#FFFFFF" class="color">
+                <label for="paperHeight">Visina papira (mm)</label>
+                <input id="paperHeight" type="number" min="10" max="2000" value="297" class="input">
               </div>
             </div>
 
-            <div style="margin-top:10px">
-              <label for="printPreset">Preset za štampanje (papir / raspored)</label>
-              <select id="printPreset" class="select">
-                <option value="p-70x100-1" selected>1 QR po listu – 70×100 mm</option>
-                <option value="p-45x70-1">1 QR po listu – 45×70 mm</option>
-                <option value="p-a4p-3">A4 portret – 3 kolone (srednje)</option>
-                <option value="p-a4p-2">A4 portret – 2 kolone (veliko)</option>
-                <option value="p-a4p-4">A4 portret – 4 kolone (malo)</option>
-                <option value="p-a4l-5">A4 pejzaž – 5 kolona (malo)</option>
-                <option value="p-a4-label-100x70">A4 – mreža 100×70 mm</option>
-                <option value="p-a4-label-70x45">A4 – mreža 70×45 mm</option>
+            <div class="fieldset__row" style="margin-top:8px;">
+              <div>
+                <label for="colsCount">Broj po horizontali</label>
+                <input id="colsCount" type="number" min="1" max="50" value="3" class="input" placeholder="Kolone">
+              </div>
+              <div>
+                <label for="rowsCount">Broj po vertikali</label>
+                <input id="rowsCount" type="number" min="1" max="50" value="4" class="input" placeholder="Redovi">
+              </div>
+            </div>
 
-                <option value="p-custom">Prilagođeno (A4; bez nametanja)</option>
-              </select>
+            <div class="fieldset__row" style="margin-top:8px;">
+              <div>
+                <label for="paperMargin">Margina papira (mm)</label>
+                <input id="paperMargin" type="number" min="0" max="100" value="10" class="input">
+              </div>
+              <div>
+                <label for="itemGap">Razmak kodova (mm)</label>
+                <input id="itemGap" type="number" min="0" max="50" value="4" class="input">
+              </div>
+            </div>
+
+            <div style="margin-top: 14px;">
+              <button class="btn" id="print" style="width: 100%; display: none; justify-content: center; align-items: center; gap: 8px; font-size: 15px; padding: 12px; background: #0891b2; border: none; border-radius: 10px;">
+                🖨️ Štampaj QR kodove
+              </button>
             </div>
           </div>
         </div>
