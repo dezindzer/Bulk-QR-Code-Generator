@@ -24,9 +24,31 @@ body{
 }
 
 /* Header */
-header{ padding:28px 20px 8px; text-align:center; }
+header{ padding:28px 20px 8px; text-align:center; position:relative; }
 header h1{ margin:0 0 6px; font-size:22px; letter-spacing:.2px; }
 header p{ margin:0; color:var(--muted); font-size:16px; }
+
+.lang-selector {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+.select-lang {
+  height: 38px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--ring);
+  background: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+@media (max-width: 640px) {
+  header { padding-top: 55px; }
+  .lang-selector { top: 12px; right: 12px; }
+}
 footer {
   align-items:center;
   text-align:center;

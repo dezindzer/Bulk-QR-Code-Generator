@@ -11,9 +11,19 @@
   </head>
 
   <body>
-    <header>
-      <h1>QR generator</h1>
-      <p>Unesi svaku stavku u novi red. Do 1000 kodova po generisanju.</p>
+    <header class="noprint">
+      <div class="lang-selector">
+        <select id="langSelect" class="select-lang">
+          <option value="rs" selected>🇷🇸 Srpski</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="it">🇮🇹 Italiano</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="zh">🇨🇳 中文</option>
+        </select>
+      </div>
+      <h1 data-i18n="appTitle">QR generator</h1>
+      <p data-i18n="subtitleText">Unesi svaku stavku u novi red. Do 1000 kodova po generisanju.</p>
     </header>
 
     <main class="grid grid-2">
@@ -22,15 +32,14 @@
         <div class="panel_body">
           <div class="fieldset inputs">
             <textarea id="links" class="textarea" spellcheck="false" 
-            placeholder="
-            Ovde unesite listu za QR kodove;
-            jedan QR za svaki novi red; 
-            prazne linije se ignorišu..."></textarea>
+            placeholder="Ovde unesite listu za QR kodove;
+jedan QR za svaki novi red;
+prazne linije se ignorišu..."></textarea>
 
             <div class="actions">
-              <button class="btn" id="generate">Generiši QR kodove</button>
-              <button class="btn btn--ghost" id="downloadListBtn">Preuzmi listu (.txt)</button>
-              <button class="btn btn--ghost" id="uploadBtn">Učitaj listu (.txt)</button>
+              <button class="btn" id="generate" data-i18n="btnGenerate">Generiši QR kodove</button>
+              <button class="btn btn--ghost" id="downloadListBtn" data-i18n="btnDownloadList">Preuzmi listu (.txt)</button>
+              <button class="btn btn--ghost" id="uploadBtn" data-i18n="btnUploadList">Učitaj listu (.txt)</button>
               <input type="file" id="upload" accept="text/plain" style="display:none">
             </div>
           </div>
@@ -41,62 +50,62 @@
       <aside class="panel">
         <div class="panel_body">
           <div class="fieldset">
-            <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--brand);">Izgled i boja</h3>
+            <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--brand);" data-i18n="styleHeader">Izgled i boja</h3>
             
             <div style="margin-bottom: 10px;">
-              <label for="qrStyle">Stil modula (oblik tačaka)</label>
+              <label for="qrStyle" data-i18n="qrStyleLabel">Stil modula (oblik tačaka)</label>
               <select id="qrStyle" class="select">
-                <option value="square" selected>Kvadratni (Klasični)</option>
-                <option value="rounded">Zaobljeni moduli</option>
-                <option value="dots">Kružni (Tačke)</option>
-                <option value="diamond">Dijamanti</option>
+                <option value="square" selected data-i18n="styleSquare">Kvadratni (Klasični)</option>
+                <option value="rounded" data-i18n="styleRounded">Zaobljeni moduli</option>
+                <option value="dots" data-i18n="styleDots">Kružni (Tačke)</option>
+                <option value="diamond" data-i18n="styleDiamond">Dijamanti</option>
               </select>
             </div>
 
             <div>
-              <label for="fgcolor">Boja QR koda</label>
+              <label for="fgcolor" data-i18n="fgColorLabel">Boja QR koda</label>
               <input id="fgcolor" type="color" value="#000000" class="color">
             </div>
 
             <hr style="border:0; border-top:1px solid var(--ring); margin:14px 0 10px 0;">
 
-            <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--brand);">Podešavanja papira i štampanja</h3>
+            <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--brand);" data-i18n="printHeader">Podešavanja papira i štampanja</h3>
             
             <div class="fieldset__row">
               <div>
-                <label for="paperWidth">Širina papira (mm)</label>
+                <label for="paperWidth" data-i18n="paperWidthLabel">Širina papira (mm)</label>
                 <input id="paperWidth" type="number" min="10" max="2000" value="210" class="input">
               </div>
               <div>
-                <label for="paperHeight">Visina papira (mm)</label>
+                <label for="paperHeight" data-i18n="paperHeightLabel">Visina papira (mm)</label>
                 <input id="paperHeight" type="number" min="10" max="2000" value="297" class="input">
               </div>
             </div>
 
             <div class="fieldset__row" style="margin-top:8px;">
               <div>
-                <label for="colsCount">Broj po horizontali</label>
+                <label for="colsCount" data-i18n="colsCountLabel">Broj po horizontali</label>
                 <input id="colsCount" type="number" min="1" max="50" value="3" class="input" placeholder="Kolone">
               </div>
               <div>
-                <label for="rowsCount">Broj po vertikali</label>
+                <label for="rowsCount" data-i18n="rowsCountLabel">Broj po vertikali</label>
                 <input id="rowsCount" type="number" min="1" max="50" value="4" class="input" placeholder="Redovi">
               </div>
             </div>
 
             <div class="fieldset__row" style="margin-top:8px;">
               <div>
-                <label for="paperMargin">Margina papira (mm)</label>
+                <label for="paperMargin" data-i18n="paperMarginLabel">Margina papira (mm)</label>
                 <input id="paperMargin" type="number" min="0" max="100" value="10" class="input">
               </div>
               <div>
-                <label for="itemGap">Razmak kodova (mm)</label>
+                <label for="itemGap" data-i18n="itemGapLabel">Razmak kodova (mm)</label>
                 <input id="itemGap" type="number" min="0" max="50" value="4" class="input">
               </div>
             </div>
 
             <div style="margin-top: 14px;">
-              <button class="btn" id="print" style="width: 100%; display: none; justify-content: center; align-items: center; gap: 8px; font-size: 15px; padding: 12px; background: #0891b2; border: none; border-radius: 10px;">
+              <button class="btn" id="print" style="width: 100%; display: none; justify-content: center; align-items: center; gap: 8px; font-size: 15px; padding: 12px; background: #0891b2; border: none; border-radius: 10px;" data-i18n="btnPrint">
                 🖨️ Štampaj QR kodove
               </button>
             </div>
@@ -108,10 +117,10 @@
       <section class="panel" style="grid-column:1 / -1;">
         <div class="panel_body">
           <div id="codesHeader" style="display:none; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--ring); padding-bottom:12px;" class="noprint">
-            <h3 style="margin:0; font-size:15px; font-weight:700; color:var(--brand);">Generisani QR kodovi</h3>
+            <h3 style="margin:0; font-size:15px; font-weight:700; color:var(--brand);" data-i18n="codesTitle">Generisani QR kodovi</h3>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-              <button class="btn btn--ghost" id="downloadAllPng">📦 Preuzmi sve (PNG)</button>
-              <button class="btn btn--ghost" id="downloadAllSvg">📦 Preuzmi sve (SVG)</button>
+              <button class="btn btn--ghost" id="downloadAllPng" data-i18n="btnDownloadAllPng">📦 Preuzmi sve (PNG)</button>
+              <button class="btn btn--ghost" id="downloadAllSvg" data-i18n="btnDownloadAllSvg">📦 Preuzmi sve (SVG)</button>
             </div>
           </div>
           <div id="codes" class="codes"></div>

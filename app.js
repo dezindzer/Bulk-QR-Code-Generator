@@ -355,6 +355,220 @@ function parseLine(line){
   return [title, url, proto || "text"];
 }
 
+/* ====== Internationalization (i18n) ====== */
+const i18nDict = {
+  rs: {
+    appTitle: "QR generator",
+    subtitleText: "Unesi svaku stavku u novi red. Do 1000 kodova po generisanju.",
+    placeholderText: "Ovde unesite listu za QR kodove;\njedan QR za svaki novi red;\nprazne linije se ignorišu...",
+    btnGenerate: "Generiši QR kodove",
+    btnUpdate: "Ažuriraj QR kodove",
+    btnDownloadList: "Preuzmi listu (.txt)",
+    btnUploadList: "Učitaj listu (.txt)",
+    styleHeader: "Izgled i boja",
+    qrStyleLabel: "Stil modula (oblik tačaka)",
+    styleSquare: "Kvadratni (Klasični)",
+    styleRounded: "Zaobljeni moduli",
+    styleDots: "Kružni (Tačke)",
+    styleDiamond: "Dijamanti",
+    fgColorLabel: "Boja QR koda",
+    printHeader: "Podešavanja papira i štampanja",
+    paperWidthLabel: "Širina papira (mm)",
+    paperHeightLabel: "Visina papira (mm)",
+    colsCountLabel: "Broj po horizontali",
+    rowsCountLabel: "Broj po vertikali",
+    paperMarginLabel: "Margina papira (mm)",
+    itemGapLabel: "Razmak kodova (mm)",
+    btnPrint: "🖨️ Štampaj QR kodove",
+    codesTitle: "Generisani QR kodovi",
+    btnDownloadAllPng: "📦 Preuzmi sve (PNG)",
+    btnDownloadAllSvg: "📦 Preuzmi sve (SVG)",
+    invalidInput: "Nije validan unos."
+  },
+  en: {
+    appTitle: "QR Generator",
+    subtitleText: "Enter each item on a new line. Up to 1000 codes per generation.",
+    placeholderText: "Enter your list for QR codes here;\none QR code for each line;\nempty lines are ignored...",
+    btnGenerate: "Generate QR Codes",
+    btnUpdate: "Update QR Codes",
+    btnDownloadList: "Download List (.txt)",
+    btnUploadList: "Upload List (.txt)",
+    styleHeader: "Appearance & Color",
+    qrStyleLabel: "Module Style (Dots Shape)",
+    styleSquare: "Square (Classic)",
+    styleRounded: "Rounded Modules",
+    styleDots: "Circular (Dots)",
+    styleDiamond: "Diamonds",
+    fgColorLabel: "QR Code Color",
+    printHeader: "Paper & Print Settings",
+    paperWidthLabel: "Paper Width (mm)",
+    paperHeightLabel: "Paper Height (mm)",
+    colsCountLabel: "Horizontal Count (Cols)",
+    rowsCountLabel: "Vertical Count (Rows)",
+    paperMarginLabel: "Paper Margin (mm)",
+    itemGapLabel: "Code Gap (mm)",
+    btnPrint: "🖨️ Print QR Codes",
+    codesTitle: "Generated QR Codes",
+    btnDownloadAllPng: "📦 Download All (PNG)",
+    btnDownloadAllSvg: "📦 Download All (SVG)",
+    invalidInput: "Invalid entry."
+  },
+  de: {
+    appTitle: "QR-Generator",
+    subtitleText: "Jeden Eintrag in eine neue Zeile eingeben. Bis zu 1000 Codes pro Erstellung.",
+    placeholderText: "Geben Sie hier Ihre Liste für QR-Codes ein;\nein QR-Code pro Zeile;\nleere Zeilen werden ignoriert...",
+    btnGenerate: "QR-Codes generieren",
+    btnUpdate: "QR-Codes aktualisieren",
+    btnDownloadList: "Liste herunterladen (.txt)",
+    btnUploadList: "Liste hochladen (.txt)",
+    styleHeader: "Aussehen & Farbe",
+    qrStyleLabel: "Modulstil (Punktestruktur)",
+    styleSquare: "Quadratisch (Klassisch)",
+    styleRounded: "Abgerundete Module",
+    styleDots: "Kreisförmig (Punkte)",
+    styleDiamond: "Rauten",
+    fgColorLabel: "QR-Code-Farbe",
+    printHeader: "Papier- & Druckeinstellungen",
+    paperWidthLabel: "Papierbreite (mm)",
+    paperHeightLabel: "Papierhöhe (mm)",
+    colsCountLabel: "Horizontale Anzahl (Spalten)",
+    rowsCountLabel: "Vertikale Anzahl (Zeilen)",
+    paperMarginLabel: "Papiermargen (mm)",
+    itemGapLabel: "Code-Abstand (mm)",
+    btnPrint: "🖨️ QR-Codes drucken",
+    codesTitle: "Generierte QR-Codes",
+    btnDownloadAllPng: "📦 Alle herunterladen (PNG)",
+    btnDownloadAllSvg: "📦 Alle herunterladen (SVG)",
+    invalidInput: "Ungültige Eingabe."
+  },
+  it: {
+    appTitle: "Generatore QR",
+    subtitleText: "Inserisci ogni voce in una nuova riga. Fino a 1000 codici per generazione.",
+    placeholderText: "Inserisci qui l'elenco dei codici QR;\nun codice QR per riga;\nle righe vuote vengono ignorate...",
+    btnGenerate: "Genera codici QR",
+    btnUpdate: "Aggiorna codici QR",
+    btnDownloadList: "Scarica elenco (.txt)",
+    btnUploadList: "Carica elenco (.txt)",
+    styleHeader: "Aspetto e colore",
+    qrStyleLabel: "Stile modulo (forma punti)",
+    styleSquare: "Quadrato (Classico)",
+    styleRounded: "Moduli arrotondati",
+    styleDots: "Circolare (Punti)",
+    styleDiamond: "Diamanti",
+    fgColorLabel: "Colore codice QR",
+    printHeader: "Impostazioni carta e stampa",
+    paperWidthLabel: "Larghezza carta (mm)",
+    paperHeightLabel: "Altezza carta (mm)",
+    colsCountLabel: "Conteggio orizzontale (colonne)",
+    rowsCountLabel: "Conteggio verticale (righe)",
+    paperMarginLabel: "Margine carta (mm)",
+    itemGapLabel: "Spaziatura codici (mm)",
+    btnPrint: "🖨️ Stampa codici QR",
+    codesTitle: "Codici QR generati",
+    btnDownloadAllPng: "📦 Scarica tutto (PNG)",
+    btnDownloadAllSvg: "📦 Scarica tutto (SVG)",
+    invalidInput: "Voce non valida."
+  },
+  fr: {
+    appTitle: "Générateur QR",
+    subtitleText: "Entrez chaque élément sur une nouvelle ligne. Jusqu'à 1000 codes par génération.",
+    placeholderText: "Entrez votre liste de codes QR ici;\nun code QR par ligne;\nles lignes vides sont ignorées...",
+    btnGenerate: "Générer les codes QR",
+    btnUpdate: "Mettre à jour les codes QR",
+    btnDownloadList: "Télécharger la liste (.txt)",
+    btnUploadList: "Charger la liste (.txt)",
+    styleHeader: "Apparence et couleur",
+    qrStyleLabel: "Style de module (forme des points)",
+    styleSquare: "Carré (Classique)",
+    styleRounded: "Modules arrondis",
+    styleDots: "Circulaire (Points)",
+    styleDiamond: "Losanges",
+    fgColorLabel: "Couleur du code QR",
+    printHeader: "Paramètres de papier et d'impression",
+    paperWidthLabel: "Largeur du papier (mm)",
+    paperHeightLabel: "Hauteur du papier (mm)",
+    colsCountLabel: "Nombre horizontal (colonnes)",
+    rowsCountLabel: "Nombre vertical (lignes)",
+    paperMarginLabel: "Marge du papier (mm)",
+    itemGapLabel: "Écart des codes (mm)",
+    btnPrint: "🖨️ Imprimer les codes QR",
+    codesTitle: "Codes QR générés",
+    btnDownloadAllPng: "📦 Tout télécharger (PNG)",
+    btnDownloadAllSvg: "📦 Tout télécharger (SVG)",
+    invalidInput: "Saisie non valide."
+  },
+  zh: {
+    appTitle: "二维码生成器",
+    subtitleText: "在每一行输入一个项目。每次生成最多 1000 个二维码。",
+    placeholderText: "在此输入二维码列表；\n每行一个二维码；\n空行将被忽略...",
+    btnGenerate: "生成二维码",
+    btnUpdate: "更新二维码",
+    btnDownloadList: "下载列表 (.txt)",
+    btnUploadList: "上传列表 (.txt)",
+    styleHeader: "外观与颜色",
+    qrStyleLabel: "码元样式（点形状）",
+    styleSquare: "方形（经典）",
+    styleRounded: "圆角码元",
+    styleDots: "圆形（点）",
+    styleDiamond: "菱形",
+    fgColorLabel: "二维码颜色",
+    printHeader: "纸张与打印设置",
+    paperWidthLabel: "纸张宽度 (mm)",
+    paperHeightLabel: "纸张高度 (mm)",
+    colsCountLabel: "水平数量（列）",
+    rowsCountLabel: "垂直数量（行）",
+    paperMarginLabel: "纸张边距 (mm)",
+    itemGapLabel: "二维码间距 (mm)",
+    btnPrint: "🖨️ 打印二维码",
+    codesTitle: "已生成的二维码",
+    btnDownloadAllPng: "📦 全部下载 (PNG)",
+    btnDownloadAllSvg: "📦 全部下载 (SVG)",
+    invalidInput: "无效输入。"
+  }
+};
+
+let currentLang = 'rs';
+
+function setLanguage(lang) {
+  if (!i18nDict[lang]) lang = 'rs';
+  currentLang = lang;
+  const dict = i18nDict[lang];
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      el.textContent = dict[key];
+    }
+  });
+
+  const textarea = $('#links');
+  if (textarea && dict.placeholderText) {
+    textarea.placeholder = dict.placeholderText;
+  }
+
+  const genBtn = $('#generate');
+  if (genBtn) {
+    const isGenerated = $('#codes') && $('#codes').children.length > 0;
+    genBtn.textContent = isGenerated ? dict.btnUpdate : dict.btnGenerate;
+  }
+
+  if ($('#langSelect')) {
+    $('#langSelect').value = lang;
+  }
+
+  try {
+    localStorage.setItem('bulkqr_lang', lang);
+  } catch(e) {}
+}
+
+function loadLanguage() {
+  let saved = 'rs';
+  try {
+    saved = localStorage.getItem('bulkqr_lang') || 'rs';
+  } catch(e) {}
+  setLanguage(saved);
+}
+
 /* ====== SVG & PNG Download Helpers ====== */
 function loadJSZip(callback) {
   if (window.JSZip) { callback(window.JSZip); return; }
@@ -506,13 +720,14 @@ function generateCodes(){
   const fg=$("#fgcolor").value.toString();
   const qrStyle=$("#qrStyle") ? $("#qrStyle").value : "square";
   const size=150;
+  const dict = i18nDict[currentLang] || i18nDict.rs;
 
   const lines=$("#links").value.split("\n");
   if(lines.length>1000){ alert("Nije moguće generisati više od 1000 kodova po pozivu."); return false; }
 
   const hasValidLines = lines.some(l => l.trim() !== "");
   if(hasValidLines){
-    $("#generate").textContent="Ažuriraj QR kodove";
+    $("#generate").textContent = dict.btnUpdate || "Ažuriraj QR kodove";
     if($("#print")) $("#print").style.display="flex";
     if($("#codesHeader")) $("#codesHeader").style.display="flex";
   }
@@ -527,7 +742,7 @@ function generateCodes(){
     card.className="code";
 
     if(err){
-      card.innerHTML=`<div class="meta">Nije validan unos.</div>`;
+      card.innerHTML=`<div class="meta">${dict.invalidInput || "Nije validan unos."}</div>`;
       parent.appendChild(card);
       counter++; continue;
     }
@@ -554,13 +769,13 @@ function generateCodes(){
     const svgBtn = document.createElement("button");
     svgBtn.className = "btn-sm";
     svgBtn.textContent = "SVG";
-    svgBtn.title = "Preuzmi pojedinačni SVG";
+    svgBtn.title = "SVG";
     svgBtn.onclick = () => downloadSingleSVG(holder.id, payload);
 
     const pngBtn = document.createElement("button");
     pngBtn.className = "btn-sm";
     pngBtn.textContent = "PNG";
-    pngBtn.title = "Preuzmi pojedinačni PNG (1000px)";
+    pngBtn.title = "PNG";
     pngBtn.onclick = () => downloadSinglePNG(holder.id, payload);
 
     actionsDiv.appendChild(svgBtn);
@@ -629,6 +844,11 @@ function loadPrintConfig() {
 /* ====== Wire up events ====== */
 document.addEventListener('DOMContentLoaded', ()=>{
   loadPrintConfig();
+  loadLanguage();
+
+  if ($('#langSelect')) {
+    $('#langSelect').addEventListener('change', (e) => setLanguage(e.target.value));
+  }
 
   const printInputs = ['paperWidth', 'paperHeight', 'colsCount', 'rowsCount', 'paperMargin', 'itemGap'];
   printInputs.forEach(id => {
