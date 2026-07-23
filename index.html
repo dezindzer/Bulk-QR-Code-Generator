@@ -29,8 +29,6 @@
 
             <div class="actions">
               <button class="btn" id="generate">Generiši QR kodove</button>
-              <button class="btn btn--ghost" id="downloadAllPng" style="display:none">Preuzmi sve (PNG)</button>
-              <button class="btn btn--ghost" id="downloadAllSvg" style="display:none">Preuzmi sve (SVG)</button>
               <button class="btn btn--ghost" id="downloadListBtn">Preuzmi listu (.txt)</button>
               <button class="btn btn--ghost" id="uploadBtn">Učitaj listu (.txt)</button>
               <input type="file" id="upload" accept="text/plain" style="display:none">
@@ -109,6 +107,13 @@
       <!-- PRIKAZ KODOVA -->
       <section class="panel" style="grid-column:1 / -1;">
         <div class="panel_body">
+          <div id="codesHeader" style="display:none; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--ring); padding-bottom:12px;" class="noprint">
+            <h3 style="margin:0; font-size:15px; font-weight:700; color:var(--brand);">Generisani QR kodovi</h3>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn--ghost" id="downloadAllPng">📦 Preuzmi sve (PNG)</button>
+              <button class="btn btn--ghost" id="downloadAllSvg">📦 Preuzmi sve (SVG)</button>
+            </div>
+          </div>
           <div id="codes" class="codes"></div>
         </div>
       </section>

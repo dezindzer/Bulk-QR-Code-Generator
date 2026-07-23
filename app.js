@@ -1,16 +1,18 @@
 /* ====== QRCode LIB with SVG renderer (embedded) ====== */
 var QRCode;
 (function(){
-  function QR8bitByte(data){ this.mode=QRMode.MODE_8BIT_BYTE; this.data=data; this.parsedData=[];
-    for(var i=0,l=data.length;i<l;i++){var a=[],code=data.charCodeAt(i);
-      if(code>0x10000){a[0]=0xF0|((code&0x1C0000)>>>18);a[1]=0x80|((code&0x3F000)>>>12);a[2]=0x80|((code&0xFC0)>>>6);a[3]=0x80|(code&0x3F);}
-      else if(code>0x800){a[0]=0xE0|((code&0xF000)>>>12);a[1]=0x80|((code&0xFC0)>>>6);a[2]=0x80|(code&0x3F);}
-      else if(code>0x80){a[0]=0xC0|((code&0x7C0)>>>6);a[1]=0x80|(code&0x3F);}
-      else{a[0]=code;}
-      this.parsedData.push(a);
+  function QR8bitByte(data){
+    this.mode = QRMode.MODE_8BIT_BYTE;
+    this.data = data;
+    if (typeof TextEncoder !== "undefined") {
+      this.parsedData = Array.from(new TextEncoder().encode(data));
+    } else {
+      var utf8 = unescape(encodeURIComponent(data));
+      this.parsedData = [];
+      for (var i = 0; i < utf8.length; i++) {
+        this.parsedData.push(utf8.charCodeAt(i));
+      }
     }
-    this.parsedData=Array.prototype.concat.apply([],this.parsedData);
-    if(this.parsedData.length!=this.data.length){ this.parsedData.unshift(191,187,239); }
   }
   QR8bitByte.prototype={ getLength:function(){return this.parsedData.length;}, write:function(b){ for(var i=0,l=this.parsedData.length;i<l;i++) b.put(this.parsedData[i],8); }};
 
@@ -284,7 +286,12 @@ var QRCode;
     if(type>QRCodeLimitLength.length) throw new Error("Too long data");
     return type;
   }
-  function _getUTF8Length(s){ var rep=encodeURI(s).toString().replace(/\%[0-9a-fA-F]{2}/g,'a'); return rep.length + (rep.length!=s ? 3 : 0); }
+  function _getUTF8Length(s){
+    if (typeof TextEncoder !== "undefined") {
+      return new TextEncoder().encode(s).length;
+    }
+    return unescape(encodeURIComponent(s)).length;
+  }
 
   QRCode=function(el,opt){
     this._opt={ width:256, height:256, typeNumber:4, colorDark:"#000000", colorLight:"#ffffff", correctLevel:QRErrorCorrectLevel.H, useSVG:true };
@@ -507,8 +514,7 @@ function generateCodes(){
   if(hasValidLines){
     $("#generate").textContent="Ažuriraj QR kodove";
     if($("#print")) $("#print").style.display="flex";
-    if($("#downloadAllPng")) $("#downloadAllPng").style.display="inline-flex";
-    if($("#downloadAllSvg")) $("#downloadAllSvg").style.display="inline-flex";
+    if($("#codesHeader")) $("#codesHeader").style.display="flex";
   }
 
   let counter=1;
